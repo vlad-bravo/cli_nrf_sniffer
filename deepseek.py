@@ -1,12 +1,14 @@
 import time
 import sys
 from collections import defaultdict
+from struct import unpack as struct_unpack
 
 class IndicatorDisplay:
     def __init__(self):
         self.indicators = defaultdict(lambda: {
             'value': 0,
-            'additional': 0,
+            'byte1': 0,
+            'byte2': 0,
             'last_update': time.time()
         })
         self.display_lines = {}
@@ -18,9 +20,10 @@ class IndicatorDisplay:
         print("\n" * 8)  # Создаем 8 пустых строк
         sys.stdout.flush()
 
-    def update_indicator(self, code, value, additional):
+    def update_indicator(self, code, value, byte1, byte2):
         self.indicators[code]['value'] = value
-        self.indicators[code]['additional'] = additional
+        self.indicators[code]['byte1'] = byte1
+        self.indicators[code]['byte2'] = byte2
         self.indicators[code]['last_update'] = time.time()
         self.update_display()
 
@@ -33,7 +36,7 @@ class IndicatorDisplay:
             time_elapsed = time.time() - data['last_update']
             
             # Формируем строку с информацией
-            line = f"Код: {code}, Значение: {data['value']}, Время с обновления: {time_elapsed:.1f}с, Доп: {data['additional']}"
+            line = f"Код: {code} ({ord(code):3}), Значение: {data['value']:10.4f}, Время с обновления: {time_elapsed:4.1f}с, Доп: {data['byte1']} {data['byte2']}"
             
             # Перемещаем курсор на нужную строку
             sys.stdout.write(f"\033[{self.line_positions[code] + 1}A")  # Перемещаемся вверх
@@ -51,19 +54,22 @@ def parse_packet(packet):
     if packet[0] != 252 or packet[1] != ord('S'):
         return None
     
-    code = packet[2]
-    value = (packet[3] << 8) | packet[4]
-    additional = (packet[5] << 8) | packet[6]
+    marker, packet_type, code, value, byte1, byte2 = struct_unpack('>BcBH2B', packet)
+    code |= 0x40
+    symbol = chr(byte1 if code == 72 else code)
+    if value > 32767:
+        value -= 65536
+    value /= 1 if symbol in 'cP' else 16
     
-    return code, value, additional
+    return symbol, value, byte1, byte2
 
 def main():
     import serial
     
     # Настройка COM-порта (замените на ваши параметры)
     ser = serial.Serial(
-        port='COM1',      # Замените на нужный COM-порт
-        baudrate=9600,
+        port='COM7',      # Замените на нужный COM-порт
+        baudrate=647000,
         timeout=1
     )
     
@@ -98,8 +104,8 @@ def main():
                         # Парсим пакет
                         result = parse_packet(packet)
                         if result:
-                            code, value, additional = result
-                            display.update_indicator(code, value, additional)
+                            code, value, byte1, byte2 = result
+                            display.update_indicator(code, value, byte1, byte2)
                     else:
                         # Неверный маркер типа пакета, пропускаем
                         buffer = buffer[1:]
