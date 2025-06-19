@@ -17,8 +17,13 @@ def process_packet(packet):
         return  # Проверка маркера и типа пакета
     code = packet[2]
     value = int.from_bytes(packet[3:5], byteorder='big')
+    code |= 0x40
+    symbol = chr(packet[5] if code == 72 else code)
+    if value > 32767:
+        value -= 65536
+    value /= 1 if symbol in 'cP' else 16
     # Обновляем или добавляем показатель
-    indicators[code] = {
+    indicators[symbol] = {
         'value': value,
         'last_updated': time.time()
     }
@@ -35,7 +40,7 @@ def update_display():
 
 def main():
     try:
-        ser = serial.Serial(PORT, BAUD_RATE, timeout=0.1)
+        ser = serial.Serial(PORT, BAUD_RATE, timeout=0.2)
     except serial.SerialException as e:
         print(f"Ошибка открытия порта {PORT}: {e}")
         return

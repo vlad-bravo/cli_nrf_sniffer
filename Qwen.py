@@ -36,6 +36,11 @@ try:
             packet_type = data[1]
             code = data[2]
             value = int.from_bytes(data[3:5], byteorder='big')
+            code |= 0x40
+            code = chr(data[5] if code == 72 else code)
+            if value > 32767:
+                value -= 65536
+            value /= 1 if code in 'cP' else 16
             extra = data[5:7]  # Не используется в этом примере
 
             if start_byte == 252 and packet_type == ord('S'):
