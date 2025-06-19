@@ -6,12 +6,17 @@ from colorama import Fore, Style, init
 # Инициализация colorama
 init()
 
+# Заголовок таблицы
+print(f"{Fore.GREEN}{'Код':^6} | {'Значение':>12} | {'Время (сек)':>12} | {'Статус':<10}{Style.RESET_ALL}")
+print(f"{Fore.GREEN}{'-'*6} + {'-'*12} + {'-'*12} + {'-'*10}{Style.RESET_ALL}")
+
 # Настройки COM-порта
-PORT = 'COM7'  # Укажите ваш COM-порт
+PORT = 'COM7'
 BAUD_RATE = 647000
 
 # Словарь для хранения показателей
 indicators = {}
+printed_lines = 0
 
 def process_packet(packet):
     """Обрабатывает пакет данных и обновляет показатели."""
@@ -22,7 +27,7 @@ def process_packet(packet):
     code = packet[2]
     value = int.from_bytes(packet[3:5], byteorder='big')
     code |= 0x40
-    symbol = chr(packet[5] if code == 72 else code)
+    symbol = chr(packet[5] if code in (72, 76) else code)
     if value > 32767:
         value -= 65536
     value /= 1 if symbol in 'cP' else 16
@@ -34,19 +39,17 @@ def process_packet(packet):
 
 def update_display():
     """Обновляет экран, выводя текущие показатели."""
-    os.system('cls' if os.name == 'nt' else 'clear')  # Очистка экрана
+    global printed_lines
     current_time = time.time()
 
-    # Заголовок таблицы
-    print(f"{Fore.GREEN}{'Код':<6} | {'Значение':>12} | {'Время (сек)':>12} | {'Статус':<10}{Style.RESET_ALL}")
-    print(f"{Fore.GREEN}{'-'*6} | {'-'*12} | {'-'*12} | {'-'*10}{Style.RESET_ALL}")
-    
+    # Поднятие курсора вверх на количество строк, равное количеству показателей    
+    print(f"\033[{printed_lines + 1}A")
     # Вывод данных
     for code in sorted(indicators, key=lambda x: ord(x)):
         data = indicators[code]
         elapsed = current_time - data['last_updated']
         value = data['value']
-        
+
         # Определение цвета времени
         if elapsed > 120:
             time_color = Fore.LIGHTBLACK_EX
@@ -64,13 +67,14 @@ def update_display():
             time_color = Fore.YELLOW
             status = "Новый"
             status_color = Fore.YELLOW
-        
+
         print(
-            f"{Fore.WHITE}{code:<6} | "
-            f"{Fore.CYAN}{value:>12.2f} | "
-            f"{time_color}{elapsed:>12.1f} | "
+            f"{Fore.WHITE}{code:^6} {Fore.GREEN}| "
+            f"{Fore.CYAN}{value:>12.4f} {Fore.GREEN}| "
+            f"{time_color}{elapsed:>12.1f} {Fore.GREEN}| "
             f"{status_color}{status:<10}{Style.RESET_ALL}"
         )
+    printed_lines = len(indicators)
 
 def main():
     try:
