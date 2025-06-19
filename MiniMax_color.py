@@ -36,14 +36,7 @@ def update_display():
     """Обновляет экран, выводя текущие показатели."""
     os.system('cls' if os.name == 'nt' else 'clear')  # Очистка экрана
     current_time = time.time()
-    
-    # Заголовок с цветной рамкой
-    print(f"\n{Fore.CYAN}╔{'═'*60}╗{Style.RESET_ALL}")
-    print(f"{Fore.CYAN}║{Style.RESET_ALL}   {Fore.GREEN}Система мониторинга показателей{Style.RESET_ALL}   {Fore.CYAN}║{Style.RESET_ALL}")
-    print(f"{Fore.CYAN}╠{'═'*60}╣{Style.RESET_ALL}")
-    print(f"{Fore.CYAN}║{Style.RESET_ALL}   Время обновления: {Fore.YELLOW}{time.strftime('%Y-%m-%d %H:%M:%S')}{Style.RESET_ALL}   {Fore.CYAN}║{Style.RESET_ALL}")
-    print(f"{Fore.CYAN}╚{'═'*60}╝{Style.RESET_ALL}\n")
-    
+
     # Заголовок таблицы
     print(f"{Fore.GREEN}{'Код':<6} | {'Значение':>12} | {'Время (сек)':>12} | {'Статус':<10}{Style.RESET_ALL}")
     print(f"{Fore.GREEN}{'-'*6} | {'-'*12} | {'-'*12} | {'-'*10}{Style.RESET_ALL}")
@@ -55,18 +48,22 @@ def update_display():
         value = data['value']
         
         # Определение цвета времени
-        if elapsed > 10:
+        if elapsed > 120:
+            time_color = Fore.LIGHTBLACK_EX
+            status = "Архив"
+            status_color = Fore.LIGHTBLACK_EX
+        elif elapsed > 60:
             time_color = Fore.RED
             status = "Устарел"
             status_color = Fore.RED
         elif elapsed > 5:
-            time_color = Fore.YELLOW
-            status = "Обновлен"
-            status_color = Fore.YELLOW
-        else:
             time_color = Fore.GREEN
             status = "Обновлен"
             status_color = Fore.GREEN
+        else:
+            time_color = Fore.YELLOW
+            status = "Новый"
+            status_color = Fore.YELLOW
         
         print(
             f"{Fore.WHITE}{code:<6} | "
