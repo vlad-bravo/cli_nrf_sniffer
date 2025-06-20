@@ -1,6 +1,5 @@
 import serial
 import time
-import os
 from colorama import Fore, Style, init
 
 # Инициализация colorama
