@@ -6,8 +6,8 @@ from colorama import Fore, Style, init
 init()
 
 # Заголовок таблицы
-print(f"{Fore.GREEN}{'Код':^6} | {'Значение':>12} | {'Время (сек)':>12} | {'Статус':<10}{Style.RESET_ALL}")
-print(f"{Fore.GREEN}{'-'*6} + {'-'*12} + {'-'*12} + {'-'*10}{Style.RESET_ALL}")
+print(f"{Fore.GREEN}{'Код':^6} | {'(Код)':^7} | {'Значение':>12} | {'Время (сек)':>12} | {'Статус':<10}{Style.RESET_ALL}")
+print(f"{Fore.GREEN}{'-'*6} + {'-'*7} + {'-'*12} + {'-'*12} + {'-'*10}{Style.RESET_ALL}")
 
 # Настройки COM-порта
 PORT = 'COM7'
@@ -69,6 +69,7 @@ def update_display():
 
         print(
             f"{Fore.WHITE}{code:^6} {Fore.GREEN}| "
+            f"{Fore.WHITE}{ord(code):^7X} {Fore.GREEN}| "
             f"{Fore.CYAN}{value:>12.4f} {Fore.GREEN}| "
             f"{time_color}{elapsed:>12.1f} {Fore.GREEN}| "
             f"{status_color}{status:<10}{Style.RESET_ALL}"
