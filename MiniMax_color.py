@@ -6,8 +6,8 @@ from colorama import Fore, Style, init
 init()
 
 # Заголовок таблицы
-print(f"{Fore.GREEN}{'Код':^6} | {'(Код)':^7} | {'Значение':>12} | {'Время (сек)':>12} | {'Статус':<10}{Style.RESET_ALL}")
-print(f"{Fore.GREEN}{'-'*6} + {'-'*7} + {'-'*12} + {'-'*12} + {'-'*10}{Style.RESET_ALL}")
+print(f"{Fore.GREEN}{'Код':^6} | {'Значение':>12} | {'Время (сек)':>12} | {'Статус':<10} | {Fore.GREEN}{'Код':^6} | {'(Код)':^7} | {'(К1)':^7} | {'(К2)':^7}{Style.RESET_ALL}")
+print(f"{Fore.GREEN}{'-'*6} + {'-'*12} + {'-'*12} + {'-'*10} + {Fore.GREEN}{'-'*6} + {'-'*7} + {'-'*7} + {'-'*7}{Style.RESET_ALL}")
 
 # Настройки COM-порта
 PORT = 'COM7'
@@ -33,7 +33,9 @@ def process_packet(packet):
     # Обновляем или добавляем показатель
     indicators[symbol] = {
         'value': value,
-        'last_updated': time.time()
+        'last_updated': time.time(),
+        'add1': packet[5],
+        'add2': packet[6]
     }
 
 def update_display():
@@ -69,10 +71,13 @@ def update_display():
 
         print(
             f"{Fore.WHITE}{code:^6} {Fore.GREEN}| "
-            f"{Fore.WHITE}{ord(code):^7X} {Fore.GREEN}| "
             f"{Fore.CYAN}{value:>12.4f} {Fore.GREEN}| "
             f"{time_color}{elapsed:>12.1f} {Fore.GREEN}| "
-            f"{status_color}{status:<10}{Style.RESET_ALL}"
+            f"{status_color}{status:<11}{Fore.GREEN}| "
+            f"{Fore.WHITE}{code:^6} {Fore.GREEN}| "
+            f"{Fore.WHITE}{ord(code):^7X} {Fore.GREEN}| "
+            f"{Fore.WHITE}{data['add1']:^7X} {Fore.GREEN}| "
+            f"{Fore.WHITE}{data['add2']:^7X} {Style.RESET_ALL}"
         )
     printed_lines = len(indicators)
 
