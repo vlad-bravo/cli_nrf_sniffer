@@ -1,6 +1,10 @@
+import os
 import serial
 import time
 from colorama import Fore, Style, init
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Инициализация colorama
 init()
@@ -10,7 +14,7 @@ print(f"{Fore.GREEN}{'Код':^6} | {'Значение':>12} | {'Время (с�
 print(f"{Fore.GREEN}{'-'*6} + {'-'*12} + {'-'*12} + {'-'*10} + {Fore.GREEN}{'-'*6} + {'-'*7} + {'-'*7} + {'-'*7}{Style.RESET_ALL}")
 
 # Настройки COM-порта
-PORT = 'COM7'
+PORT = os.getenv('PORT', 'COM1')
 BAUD_RATE = 647000
 
 # Словарь для хранения показателей
@@ -27,6 +31,11 @@ def process_packet(packet):
     value = int.from_bytes(packet[3:5], byteorder='big')
     code |= 0x40
     symbol = chr(packet[5] if code == 72 else code)
+    if code == 68:  # 'D'
+        if packet[5] == 0xA6:
+            symbol = 'A'
+        elif packet[5] == 0x4F:
+            symbol = 'C'
     if value > 32767:
         value -= 65536
     value /= 1 if symbol in 'cP' else 16
