@@ -35,7 +35,7 @@ def process_packet(packet):
         if packet[5] == 0xA6:
             symbol = 'A'
         elif packet[5] == 0x4F:
-            symbol = 'C'
+            symbol = 'E'
     if value > 32767:
         value -= 65536
     value /= 1 if symbol in 'cP' else 16
