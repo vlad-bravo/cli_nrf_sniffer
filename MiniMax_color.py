@@ -10,8 +10,8 @@ load_dotenv()
 init()
 
 # Заголовок таблицы
-print(f"{Fore.GREEN}{'Код':^6} | {'Значение':>12} | {'Время (сек)':>12} | {'Статус':<10} | {Fore.GREEN}{'Код':^6} | {'(Код)':^7} | {'(К1)':^7} | {'(К2)':^7}{Style.RESET_ALL}")
-print(f"{Fore.GREEN}{'-'*6} + {'-'*12} + {'-'*12} + {'-'*10} + {Fore.GREEN}{'-'*6} + {'-'*7} + {'-'*7} + {'-'*7}{Style.RESET_ALL}")
+print(f"{Fore.GREEN}{'Код':^5} | {'Значение':>9} | {'Время ':>7} | {'Статус':<10} | {Fore.GREEN}{'Код':^6} | {'(Код)':^7} | {'(К1)':^7} | {'(К2)':^7}{Style.RESET_ALL}")
+print(f"{Fore.GREEN}{'-'*5} + {'-'*9} + {'-'*7} + {'-'*10} + {Fore.GREEN}{'-'*6} + {'-'*7} + {'-'*7} + {'-'*7}{Style.RESET_ALL}")
 
 # Настройки COM-порта
 PORT = os.getenv('PORT', 'COM1')
@@ -79,9 +79,9 @@ def update_display():
             status_color = Fore.YELLOW
 
         print(
-            f"{Fore.WHITE}{code:^6} {Fore.GREEN}| "
-            f"{Fore.CYAN}{value:>12.4f} {Fore.GREEN}| "
-            f"{time_color}{elapsed:>12.1f} {Fore.GREEN}| "
+            f"{Fore.WHITE}{code:^5} {Fore.GREEN}| "
+            f"{Fore.CYAN}{value:>9.4f} {Fore.GREEN}| "
+            f"{time_color}{elapsed:>7.1f} {Fore.GREEN}| "
             f"{status_color}{status:<11}{Fore.GREEN}| "
             f"{Fore.WHITE}{code:^6} {Fore.GREEN}| "
             f"{Fore.WHITE}{ord(code):^7X} {Fore.GREEN}| "
