@@ -182,11 +182,12 @@ class SerialMonitor:
                 print(f"\033[{self.printed_lines}A", end="")
                 for _ in range(self.printed_lines):
                     print(" " * 80)
-            print(f"\n{Fore.YELLOW}Программа остановлена.{Style.RESET_ALL}")
+            print(f"\n{Fore.YELLOW}Программа остановлена.{Style.RESET_ALL}\033[?25h")
         finally:
             ser.close()
 
 
 if __name__ == "__main__":
+    print("\033[?25l")
     monitor = SerialMonitor(PORT, BAUD_RATE)
     monitor.run()
