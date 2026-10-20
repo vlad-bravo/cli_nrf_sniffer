@@ -58,6 +58,8 @@ class SerialMonitor:
         
         # Определение символа
         symbol = chr(packet[5] if code == 72 else code)
+        if code == 0:
+            symbol = '.'
         if code == 68:  # 'D'
             if packet[5] == 0xA6:
                 symbol = 'A'
