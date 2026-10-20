@@ -58,13 +58,14 @@ class SerialMonitor:
         
         # Определение символа
         symbol = chr(packet[5] if code == 72 else code)
-        if code == 0:
-            symbol = '.'
         if code == 68:  # 'D'
             if packet[5] == 0xA6:
                 symbol = 'A'
             elif packet[5] == 0x4F:
                 symbol = 'E'
+        if symbol not in '@ABEFchw':
+            with open("log", "a") as log_out:
+                log_out.write(f"{code} - {symbol}.\n")
 
         # Обработка значения
         if value > 32767:
