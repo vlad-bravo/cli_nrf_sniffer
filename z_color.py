@@ -58,7 +58,7 @@ class SerialMonitor:
         """Обрабатывает пакет данных и обновляет показатели."""
         code = packet[2]
         value = int.from_bytes(packet[3:5], byteorder='big')
-        # Оставляем код канала и приводим к ряду @BDFH
+        # Оставляем код канала и приводим к ряду @BDFHJLN
         code = code & 0x0E | 0x40
         
         # Определение символа
