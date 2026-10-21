@@ -1,6 +1,8 @@
 import os
 import serial
 import time
+from pathlib import Path
+
 from colorama import Fore, Style, init
 from dotenv import load_dotenv
 
@@ -13,12 +15,14 @@ BAUD_RATE = 647000
 
 PACKET_MARKER = b'\xfcS'
 PACKET_LENGTH = 7
-CODE_OFFSET = 0x40
 
 # Таймауты для статусов (в секундах)
 TIMEOUT_NEW = 5
 TIMEOUT_UPDATED = 60
 TIMEOUT_OLD = 120
+
+script_dir = Path(__file__).resolve().parent
+file_path = script_dir / 'test.log'
 
 # Шаблоны для таблицы
 HEADER_TEMPLATE = (
@@ -54,7 +58,8 @@ class SerialMonitor:
         """Обрабатывает пакет данных и обновляет показатели."""
         code = packet[2]
         value = int.from_bytes(packet[3:5], byteorder='big')
-        code |= CODE_OFFSET
+        # Оставляем код канала и приводим к ряду @BDFH
+        code = code & 0x0E | 0x40
         
         # Определение символа
         symbol = chr(packet[5] if code == 72 else code)
@@ -64,8 +69,8 @@ class SerialMonitor:
             elif packet[5] == 0x4F:
                 symbol = 'E'
         if symbol not in '@ABEFchw':
-            with open("log", "a") as log_out:
-                log_out.write(f"{code} - {symbol}.\n")
+            with open(file_path, "a") as log_out:
+                log_out.write(f"{code} ({code:02X}) ({code:08b}) - {symbol}.\n")
 
         # Обработка значения
         if value > 32767:
